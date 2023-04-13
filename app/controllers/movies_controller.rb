@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 class MoviesController < ApplicationController
+  before_action :authenticate_user!
   #load_and_authorize_resource
   before_action :get_movie, only: [:show,:edit,:update,:destroy]
-  after_action :make_bookings,  only: %i[book_tickets]
+  # after_action :make_bookings,  only: %i[book_tickets]
   def index
     @q = Movie.ransack(params[:q])
     @movies = @q.result.kept
@@ -53,35 +54,35 @@ class MoviesController < ApplicationController
     end
   end
   
-  def book_tickets
-    @showtime = Showtime.find(params[:show_id])
-    @seats = @showtime.seats
-    @booked_seats = []
-    @seats_to_book = params[:no_of_tickets].to_i
-    if @seats_to_book > @seats.where(availablity_status: 'true').count
-      redirect_to theatre_screen_showtime_path(theatre_id:params[:theatre_id],screen_id:params[:screen_id]), alert: "Seats not available"
-    else
-      @seats.each do |seat|
-        if seat.availablity_status == true && @seats_to_book > 0
-          seat.availablity_status = false
-          seat.save
-          @booked_seats << seat
-          @seats_to_book = @seats_to_book - 1
-        end
-      end
-      redirect_to theatre_screen_showtime_path(theatre_id:params[:theatre_id],screen_id:params[:screen_id])
-    end
-  end
+  # def book_tickets
+  #   @showtime = Showtime.find(params[:show_id])
+  #   @seats = @showtime.seats
+  #   @booked_seats = []
+  #   @seats_to_book = params[:no_of_tickets].to_i
+  #   if @seats_to_book > @seats.where(availablity_status: 'true').count
+  #     redirect_to theatre_screen_showtime_path(theatre_id:params[:theatre_id],screen_id:params[:screen_id]), alert: "Seats not available"
+  #   else
+  #     @seats.each do |seat|
+  #       if seat.availablity_status == true && @seats_to_book > 0
+  #         seat.availablity_status = false
+  #         seat.save
+  #         @booked_seats << seat
+  #         @seats_to_book = @seats_to_book - 1
+  #       end
+  #     end
+  #     # redirect_to theatre_screen_showtime_path(theatre_id:params[:theatre_id],screen_id:params[:screen_id])
+  #   end
+  # end
   
                                             
   private
   
-  def make_bookings
-    if (@booked_seats.length()>0)
-      @booking = current_user.bookings.create(state: "processed", showtime_id: @showtime.id, total_seats_booked: params[:no_of_tickets].to_i)
-      BookingMailMailer.create_mail_to_user(@booking).deliver_now
-    end
-  end
+  # def make_bookings
+  #   if (@booked_seats.length()>0)
+  #     @booking = current_user.bookings.create(state: "processed", showtime_id: @showtime.id, total_seats_booked: params[:no_of_tickets].to_i)
+  #     # BookingMailMailer.create_mail_to_user(@booking).deliver_now
+  #   end
+  # end
   
   def movie_params
     params.require(:movie).permit(:name,:genre,:description, :movie_poster)

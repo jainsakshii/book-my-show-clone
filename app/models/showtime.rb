@@ -1,5 +1,5 @@
 class Showtime < ApplicationRecord
-  validates :name, :schedule, presence: true
+  #validates :name, :schedule, presence: true
   belongs_to :screen
   belongs_to :movie
   has_many :seats, dependent: :destroy

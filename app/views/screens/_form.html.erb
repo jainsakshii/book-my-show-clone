@@ -1,4 +1,4 @@
-<%= form_for screen, url: theatre_screen_path(screen) do |form| %>
+<%= form_for screen, url: theatre_screen_path(show_id: @showtime,id: screen) do |form| %>
 
   <%= link_to_add_nested(form, :showtimes, '#showtimes') %> <!-- adds a link to add more items -->
   <div id='showtimes'>
